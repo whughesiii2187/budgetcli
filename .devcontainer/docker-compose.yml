@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: vscode
+    volumes:
+      # Mounts the repo root (parent of .devcontainer) into the container.
+      # Works regardless of what the repo/folder is named.
+      - ..:/workspace:cached,Z
+    command: sleep infinity
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=dev
+      - DB_PASSWORD=dev
+      - DB_NAME=devdb
+    # Uncomment once the "db" service below is enabled, so "app" waits for
+    # Postgres to be ready before the container is considered up.
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # -----------------------------------------------------------------------
+  # Optional Postgres sidecar.
+  #
+  # To enable: uncomment this entire "db" block, then uncomment the
+  # "depends_on" block above and the "forwardPorts" line in devcontainer.json.
+  #
+  # Data is stored on the HOST at .devcontainer/pgdata (i.e. inside the repo
+  # / working folder you dropped this into), so it survives container
+  # rebuilds and `docker compose down`. It's git-ignored by default -- see
+  # .devcontainer/.gitignore. Delete that folder any time to reset the DB.
+  # -----------------------------------------------------------------------
+  db:
+    image: docker.io/postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: devdb
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data:Z
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev -d devdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10

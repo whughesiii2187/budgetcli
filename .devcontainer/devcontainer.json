@@ -1,0 +1,47 @@
+{
+  "name": "go-python-dev",
+
+  // Uses docker-compose.yml in this same folder. The "app" service is the
+  // one VS Code / your editor actually attaches to.
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+
+  // Go and Python are installed as "features" rather than baked into the
+  // Dockerfile. This keeps the base image generic and makes version bumps
+  // a one-line change here instead of a Dockerfile edit.
+  "features": {
+    "ghcr.io/devcontainers/features/go:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "latest",
+      "installTools": true
+    },
+    "ghcr.io/devcontainers/features/common-utils:2": {}
+  },
+
+  // Postgres port. Only meaningful once the "db" service is enabled in
+  // docker-compose.yml -- uncomment the line below when you do that.
+  "forwardPorts": [5432],
+
+  "postCreateCommand": "go version && python3 --version",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "go.toolsManagement.autoUpdate": true,
+        "python.defaultInterpreterPath": "/usr/local/bin/python3",
+        "python.terminal.activateEnvironment": true
+      }
+    }
+  },
+
+  "remoteUser": "vscode"
+}

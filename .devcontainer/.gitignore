@@ -1,0 +1,2 @@
+# Postgres data files (only present if you enabled the "db" service)
+pgdata/
